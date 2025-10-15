@@ -24,5 +24,11 @@ void linedisplay_println(const char* line);
 // Append onto the currently active line on the display.
 void linedisplay_append(const char* text);
 
+// Clear a line
+void linedisplay_clear(unsigned line_index);
+
+// Copy into the current line (internal)
+void linedisplay_safecopy(const char* source, int offset);
+
 // Redraw a specific line at the output. (Run whenever a line is updated)
 void ev_linedisplay_lines_updated(unsigned line_index);

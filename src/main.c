@@ -3,9 +3,16 @@
 #include "linedisplay.h"
 
 int main() {
+	input_init();
 	linedisplay_init();
-	for (unsigned i=0; i<LINEDISPLAY_MAX_LINES-2; i++)
-		linedisplay_println("what up dude");
+	for (unsigned i = 0; i < LINEDISPLAY_MAX_LINES + 1; i++) {
+		/*if (i == 18) {
+			input_get_char();
+		}*/
+		char balls[LINEDISPLAY_MAX_CHARS];
+		sprintf(&balls, "what up dude %u", i);
+		linedisplay_println(balls);
+	}
 
 	printf("\033[%i;%iH",LINEDISPLAY_MAX_LINES+2,1);
 	return 0;

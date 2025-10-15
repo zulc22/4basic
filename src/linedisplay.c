@@ -5,7 +5,8 @@ int linedisplay_current_line;
 #include <stdlib.h>
 #include <string.h>
 
-void linedisplay_init() {
+void linedisplay_init()
+{
 	for (unsigned i = 0; i < LINEDISPLAY_MAX_LINES; i++) {
 		linedisplay_lines[i] = NULL;
 		ev_linedisplay_lines_updated(i);
@@ -24,28 +25,37 @@ char* linedisplay_line_get(unsigned line_index)
 
 char* linedisplay_line_next()
 {
-	if (linedisplay_current_line+1 == LINEDISPLAY_MAX_LINES - 1) {
+	if (linedisplay_current_line == LINEDISPLAY_MAX_LINES - 1) {
 		linedisplay_scroll();
-	}
-	linedisplay_current_line++;
+	} else linedisplay_current_line++;
 	char* line = linedisplay_line_get(linedisplay_current_line);
 	return line;
 }
 
 void linedisplay_scroll()
 {
-	// grab line 0
-	char* line = linedisplay_line_get(0);
-	// mark it as empty
-	line[0] = 0;
+	// get a copy of the first line (to recycle anything already allocated)
+	char* first_line = linedisplay_lines[0];
+
 	// copy all the other lines up
-	for (int i = 0; i < linedisplay_current_line; i++) {
+	for (int i = 0; i < LINEDISPLAY_MAX_LINES-1; i++) {
 		linedisplay_lines[i] = linedisplay_lines[i+1];
 		ev_linedisplay_lines_updated(i);
 	}
-	linedisplay_lines[linedisplay_current_line] = line;
-	ev_linedisplay_lines_updated(linedisplay_current_line);
-	linedisplay_current_line--;
+
+	// recycle the first line
+	linedisplay_lines[LINEDISPLAY_MAX_LINES - 1] = first_line;
+	// and clear it
+	first_line[0] = 0;
+	ev_linedisplay_lines_updated(LINEDISPLAY_MAX_LINES - 1);
+}
+
+void linedisplay_clear(unsigned line_index) {
+	if (linedisplay_lines[line_index] != NULL)
+		free(linedisplay_lines[line_index]);
+
+	linedisplay_lines[line_index] = NULL;
+	ev_linedisplay_lines_updated(line_index);
 }
 
 void linedisplay_safecopy(const char* source, int offset)
@@ -59,7 +69,8 @@ void linedisplay_safecopy(const char* source, int offset)
 			destination = linedisplay_line_next();
 		}
 		destination[offset++] = *source++;
-		if (*source-1 == 0) {
+		if (*source == 0) {
+			destination[offset] = 0;
 			break;
 		}
 	}
@@ -85,15 +96,16 @@ void linedisplay_append(const char* source_text)
 #define iprintf printf
 #endif
 
+//#include <Windows.h>
 void ev_linedisplay_lines_updated(unsigned line_index)
 {
 	char* line = linedisplay_lines[line_index];
-	if (line == NULL) line = "";
 	/* VT100...   Print the line's text
 	         Clear it -----.  |
 	Goto the changed line  |  |
 	            |          |  |
 					 [---------][----][]*/
-	iprintf("\033[%i;%iH\033[K%02i: %s",
-		line_index+1, 1, line_index, line);
+	iprintf("\033[%i;%iH\033[K%s",
+		line_index + 1, 1, line==NULL?"" : line);
+	//if (line!=NULL) Sleep(100);
 }
