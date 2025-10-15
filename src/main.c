@@ -11,8 +11,14 @@ int main() {
 		}*/
 		char balls[LINEDISPLAY_MAX_CHARS];
 		sprintf(&balls, "what up dude %u", i);
-		linedisplay_println(balls);
+		linedisplay_append(balls);
+		linedisplay_line_next();
 	}
+	printf("\033[%i;%iH? ", LINEDISPLAY_MAX_LINES + 2, 1);
+
+	char buf[LINEDISPLAY_MAX_CHARS];
+	input_get_line(&buf);
+	linedisplay_println(&buf);
 
 	printf("\033[%i;%iH",LINEDISPLAY_MAX_LINES+2,1);
 	return 0;

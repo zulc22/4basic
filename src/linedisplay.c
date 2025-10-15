@@ -14,22 +14,31 @@ void linedisplay_init()
 	linedisplay_current_line = 0;
 }
 
+#pragma warning( push )
+// a warning comes from the dereferencing of malloc, which can possibly
+// return a null pointer if it can't allocate the requested amount of memory.
+// 
+// i am going to intentionally ignore this because if we're failing to
+// allocate 60 bytes of memory i want the program to crash anyway.
+#pragma warning( disable : 6011 )
 char* linedisplay_line_get(unsigned line_index)
 {
+	// allocate a line if it's empty
 	if (linedisplay_lines[line_index] == NULL) {
 		linedisplay_lines[line_index] =
 			malloc(LINEDISPLAY_MAX_CHARS);
+		linedisplay_lines[line_index][0] = 0;
 	}
 	return linedisplay_lines[line_index];
 }
+#pragma warning( pop )
 
 char* linedisplay_line_next()
 {
 	if (linedisplay_current_line == LINEDISPLAY_MAX_LINES - 1) {
 		linedisplay_scroll();
 	} else linedisplay_current_line++;
-	char* line = linedisplay_line_get(linedisplay_current_line);
-	return line;
+	return linedisplay_line_get(linedisplay_current_line);
 }
 
 void linedisplay_scroll()
@@ -85,7 +94,7 @@ void linedisplay_println(const char* source_line)
 
 void linedisplay_append(const char* source_text)
 {
-	char* line = linedisplay_lines[linedisplay_current_line];
+	char* line = linedisplay_line_get(linedisplay_current_line);
 	unsigned count = 0;
 	for (; line[count] != 0; count++) {}
 	linedisplay_safecopy(source_text, count);
