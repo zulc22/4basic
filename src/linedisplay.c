@@ -1,6 +1,6 @@
 #include "linedisplay.h"
 char* linedisplay_lines[LINEDISPLAY_MAX_LINES];
-int linedisplay_current_line;
+unsigned linedisplay_current_line;
 
 #include <stdlib.h>
 #include <string.h>
@@ -21,7 +21,7 @@ void linedisplay_init()
 // i am going to intentionally ignore this because if we're failing to
 // allocate 60 bytes of memory i want the program to crash anyway.
 #pragma warning( disable : 6011 )
-char* linedisplay_line_get(unsigned line_index)
+char* linedisplay_line_get(const unsigned line_index)
 {
 	// allocate a line if it's empty
 	if (linedisplay_lines[line_index] == NULL) {
@@ -47,7 +47,7 @@ void linedisplay_scroll()
 	char* first_line = linedisplay_lines[0];
 
 	// copy all the other lines up
-	for (int i = 0; i < LINEDISPLAY_MAX_LINES-1; i++) {
+	for (unsigned i = 0; i < LINEDISPLAY_MAX_LINES-1; i++) {
 		linedisplay_lines[i] = linedisplay_lines[i+1];
 		ev_linedisplay_lines_updated(i);
 	}
@@ -59,7 +59,7 @@ void linedisplay_scroll()
 	ev_linedisplay_lines_updated(LINEDISPLAY_MAX_LINES - 1);
 }
 
-void linedisplay_clear(unsigned line_index) {
+void linedisplay_clear(const unsigned line_index) {
 	if (linedisplay_lines[line_index] != NULL)
 		free(linedisplay_lines[line_index]);
 
@@ -67,7 +67,7 @@ void linedisplay_clear(unsigned line_index) {
 	ev_linedisplay_lines_updated(line_index);
 }
 
-void linedisplay_safecopy(const char* source, int offset)
+void linedisplay_safecopy(const char* source, unsigned offset)
 {
 	char* destination = linedisplay_line_get(linedisplay_current_line);
 	while (1) {
@@ -106,7 +106,7 @@ void linedisplay_append(const char* source_text)
 #endif
 
 //#include <Windows.h>
-void ev_linedisplay_lines_updated(unsigned line_index)
+void ev_linedisplay_lines_updated(const unsigned line_index)
 {
 	char* line = linedisplay_lines[line_index];
 	/* VT100...   Print the line's text

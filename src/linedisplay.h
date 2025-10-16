@@ -1,10 +1,12 @@
+#pragma once
+
 #define LINEDISPLAY_MAX_LINES 20
 #define LINEDISPLAY_MAX_CHARS 60
 
 void linedisplay_init();
 
 extern char* linedisplay_lines[LINEDISPLAY_MAX_LINES];
-extern int linedisplay_current_line;
+extern unsigned linedisplay_current_line;
 //#if defined(GBA)
 //extern bool linedisplay_horiz_scrolled;
 //#endif
@@ -19,16 +21,16 @@ char* linedisplay_line_next();
 void linedisplay_scroll();
 
 // Print a new line onto the line display.
-void linedisplay_println(const char* line);
+void linedisplay_println(const char* source_line);
 
 // Append onto the currently active line on the display.
-void linedisplay_append(const char* text);
+void linedisplay_append(const char* source_text);
 
 // Clear a line
 void linedisplay_clear(unsigned line_index);
 
 // Copy into the current line (internal)
-void linedisplay_safecopy(const char* source, int offset);
+void linedisplay_safecopy(const char* source, unsigned offset);
 
 // Redraw a specific line at the output. (Run whenever a line is updated)
 void ev_linedisplay_lines_updated(unsigned line_index);

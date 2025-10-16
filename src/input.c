@@ -23,7 +23,7 @@ void input_get_line(char* out_line) {
 
 #if defined(WIN32)
 
-#include <windows.h>
+#include <Windows.h>
 
 HANDLE hConsoleInput;
 DWORD dwRead;
@@ -33,7 +33,7 @@ void input_init() {
 	HANDLE hConsoleOutput = GetStdHandle(STD_OUTPUT_HANDLE);
 	SetConsoleMode(hConsoleOutput,
 		ENABLE_VIRTUAL_TERMINAL_PROCESSING | ENABLE_PROCESSED_OUTPUT);
-
+	// this is supposed to disable input buffering. doesn't work on MinGW??
 	hConsoleInput = GetStdHandle(STD_INPUT_HANDLE);
 	SetConsoleMode(hConsoleInput, 0);
 }
